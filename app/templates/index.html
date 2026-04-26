@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Space Survivor{% endblock %}
+{% block body %}
+<div class="game-layout">
+
+  <!-- Left sidebar: stats + leaderboard -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">STATS</div>
+      <div class="stat-card"><span class="stat-label">Score</span><span class="stat-value" id="gameScore">0</span></div>
+      <div class="stat-card"><span class="stat-label">Enemies</span><span class="stat-value" id="gameEnemies">0</span></div>
+      <div class="stat-card"><span class="stat-label">Bullets</span><span class="stat-value" id="gameBullets">0</span></div>
+      <div class="stat-card"><span class="stat-label">Coins</span><span class="stat-value" id="gameCoins">0</span></div>
+      <div class="stat-card"><span class="stat-label">Time</span><span class="stat-value" id="gameTime">0.0s</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">TOP SCORES</div>
+      <ol class="leaderboard-list" id="leaderboardList">
+        <li class="lb-empty">Loading…</li>
+      </ol>
+    </div>
+  </aside>
+
+  <!-- Game area -->
+  <main class="game-area">
+    <div class="game-topbar">
+      <span class="topbar-user">{{ username }}</span>
+      <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+
+    <div class="canvas-wrap">
+      <canvas id="gameCanvas" width="480" height="640"></canvas>
+    </div>
+  </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+{% endblock %}

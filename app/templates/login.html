@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Login — Space Survivor{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">SPACE SURVIVOR</div>
+    <p class="auth-sub">Sign in to save your scores</p>
+
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+      <label class="field-label">Username</label>
+      <input type="text" name="username" class="field-input" autocomplete="username" required>
+
+      <label class="field-label">Password</label>
+      <input type="password" name="password" class="field-input" autocomplete="current-password" required>
+
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+
+    <p class="auth-link">No account? <a href="{{ url_for('register') }}">Register</a></p>
+  </div>
+</div>
+{% endblock %}

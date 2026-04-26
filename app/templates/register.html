@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Register — Space Survivor{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">SPACE SURVIVOR</div>
+    <p class="auth-sub">Create an account</p>
+
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('register') }}">
+      <label class="field-label">Username <span class="hint">(3–20 chars)</span></label>
+      <input type="text" name="username" class="field-input" minlength="3" maxlength="20" autocomplete="username" required>
+
+      <label class="field-label">Password <span class="hint">(min 6 chars)</span></label>
+      <input type="password" name="password" class="field-input" minlength="6" autocomplete="new-password" required>
+
+      <button type="submit" class="btn-primary">Create account</button>
+    </form>
+
+    <p class="auth-link">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+</div>
+{% endblock %}
