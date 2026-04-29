@@ -31,6 +31,5 @@ Score payload: `{ score, enemies_killed, bullets_fired, playtime }`
 | Key | Action |
 |-----|--------|
 | WASD / Arrows | Move |
-| Shift (hold) | Focused slow mode + show hitbox |
 | R | Restart after game over |
 | Auto | Fires automatically |

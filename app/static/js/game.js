@@ -61,7 +61,7 @@
   };
 
   // ── Game state ────────────────────────────────────────────────────────────
-  let score = 0, lives = 3, coins = 0;
+  let score = 0, lives = 3, coins = 0, Totalcoins = 0;
   let enemiesKilled = 0, bulletsFired = 0;
   let elapsedTime = 0, gameStartTime = 0;
   let gameOver = false;
@@ -92,7 +92,7 @@
   const TRANSITION_DURATION = 2000;
 
   let enemies, bullets, enemyBullets, powerUps, bosses;
-  let cursors, wasd, shiftKey;
+  let cursors, wasd;
 
   // ── Phaser config ─────────────────────────────────────────────────────────
   const config = {
@@ -197,14 +197,15 @@
     // Controls
     cursors  = s.input.keyboard.createCursorKeys();
     wasd     = s.input.keyboard.addKeys({ W: 87, A: 65, S: 83, D: 68 });
-    shiftKey = s.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
 
     // Collisions
     s.physics.add.overlap(bullets,      enemies,      hitEnemy,      null, s);
     s.physics.add.overlap(bullets,      bosses,       hitBoss,       null, s);
+    s.physics.add.overlap(player,       bosses,       hitPlayer,     null, s);
     s.physics.add.overlap(player,       enemies,      hitPlayer,     null, s);
     s.physics.add.overlap(player,       enemyBullets, hitPlayer,     null, s);
     s.physics.add.overlap(player,       powerUps,     collectPowerUp,null, s);
+    
 
     // HUD elements
     const mono = { fontFamily: 'monospace' };
@@ -229,7 +230,7 @@
     s.startTitle   = s.add.text(W / 2, H / 2 - 110, 'SPACE\nSURVIVOR', {
       ...mono, fontSize: '38px', fill: '#00f0ff', align: 'center', fontStyle: 'bold'
     }).setOrigin(0.5).setDepth(21);
-    s.startSub = s.add.text(W / 2, H / 2 - 10, 'WASD / Arrows  —  move\nShift  —  focus (slow + hitbox)\nAuto-fire  —  survive', {
+    s.startSub = s.add.text(W / 2, H / 2 - 10, 'WASD / Arrows  —  move\nAuto-fire', {
       ...mono, fontSize: '13px', fill: '#aaaacc', align: 'center'
     }).setOrigin(0.5).setDepth(21);
 
@@ -273,8 +274,10 @@
 
     // Hide player until started
     player.setVisible(false);
-
-    s.input.keyboard.on('keydown-R', () => restart(s));
+    s.input.keyboard.on('keydown-R', () => {
+    if (!gameOver) return; // non fa nulla se la partita non è finita
+    restart(s);
+});
 
     updateDOM();
     refreshLeaderboard();
@@ -311,8 +314,7 @@
     elapsedTime += delta;
 
     // ── Movement ──────────────────────────────────────────────────────────
-    const focused = shiftKey.isDown;
-    const speed = focused ? 95 : 270;
+    const speed = 270;
     let vx = 0, vy = 0;
     if (cursors.left.isDown  || wasd.A.isDown) vx = -1;
     if (cursors.right.isDown || wasd.D.isDown) vx =  1;
@@ -323,10 +325,7 @@
     player.setAngle(vx * 8);
 
     playerGfx.clear();
-    if (focused) {
-      playerGfx.fillStyle(0xffffff, 0.9);
-      playerGfx.fillCircle(player.x, player.y, 3);
-    }
+
 
     // ── Auto-fire ─────────────────────────────────────────────────────────
     shootTimer -= delta;
@@ -597,6 +596,12 @@
     const size = Math.min(80 + bossCount * 6, 120);
     const b    = bosses.create(W / 2, 80, 'boss');
     b.setDisplaySize(size, size);
+    if (b.body) {
+     // match physics body to visual size (use circular hitbox)
+     b.body.setCircle(Math.floor(size / 2));
+     // center the circle on the sprite if needed (optional offset)
+     b.body.setOffset((b.displayWidth - size) / 2, (b.displayHeight - size) / 2);
+    }
     b.setVelocity(100 + bossCount * 22, 0);
     b.setCollideWorldBounds(true);
     b.setBounce(1, 0);
@@ -621,6 +626,7 @@
     score += 10;
     enemiesKilled++;
     coins += 2;
+    Totalcoins += 2;
     sfx.enemyDie();
     burst(s, enemy.x, enemy.y, 0x00f0ff);
     floatText(s, enemy.x, enemy.y, '+10', '#00f0ff');
@@ -646,9 +652,10 @@
       burst(s, boss.x, boss.y, 0xffaa00, 14);
       const bonus = 200 + bossCount * 50;
       floatText(s, boss.x, boss.y, `+${bonus}`, '#ff2d78');
-      score        += bonus;
+      score += bonus;
       enemiesKilled += 5;
-      coins        += 15 + bossCount * 3;
+      coins+= 15 + bossCount * 3;
+      Totalcoins   += 15 + bossCount * 3;
       if (Math.random() < 0.65) spawnPowerUp(s, boss.x, boss.y);
       boss.destroy();
       bossActive   = false;
@@ -695,6 +702,7 @@
     sfx.powerUp();
     score  += 30;
     coins  += 3;
+    Totalcoins += 3;
     if (lives < 5) { lives++; floatText(playerObj.scene, playerObj.x, playerObj.y - 20, '+1 ❤', '#00ff88'); }
     else floatText(playerObj.scene, playerObj.x, playerObj.y - 20, '+30', '#00ff88');
   }
@@ -728,12 +736,16 @@
     s.hudArea.setText(`Area ${areaLevel}  |  Boss #${bossCount + 1}`);
   }
 
-  function updateDOM() {
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+function updateDOM() {
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    };
     set('gameScore',   score);
     set('gameEnemies', enemiesKilled);
     set('gameBullets', bulletsFired);
-    set('gameCoins',   coins);
+    set('gameCoins',   coins);       // sidebar
+    set('gameCoinsTop', Totalcoins);      // top-right counter
     set('gameTime',    (elapsedTime / 1000).toFixed(1) + 's');
   }
 
@@ -743,7 +755,7 @@
     player.setPosition(W / 2, H - 80);
     player.setAlpha(1);
     player.setVisible(false);
-    if (invulnTween) { invulnTween.stop(); invulnTween = null; }
+    if (invulnTween) { invulnTween.stop(); invulnTween = null; }  gameOver = true; gameStarted = false;
 
     score = 0; lives = 3; coins = 0;
     enemiesKilled = 0; bulletsFired = 0;
@@ -779,7 +791,7 @@
     fetch('/api/submit-score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ score, enemies_killed: enemiesKilled, bullets_fired: bulletsFired, playtime, difficulty: 'normal', pattern_used: 'default' })
+      body: JSON.stringify({ score, enemies_killed: enemiesKilled, bullets_fired: bulletsFired, playtime })
     })
       .then(r => r.json())
       .then(() => refreshLeaderboard())
