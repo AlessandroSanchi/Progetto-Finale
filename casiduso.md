@@ -21,8 +21,8 @@ flowchart LR
     Utente --> D
 
 
-    D -->|<<include>>| A
-    C -->|<<include>>| A
-    C -->|<<include>>| B
-    A -->|<<extend>>| B
+    D -->|include| A
+    C -->|include| A
+    C -->|include| B
+    A -->|extend| B
 ```
