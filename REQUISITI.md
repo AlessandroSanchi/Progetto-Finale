@@ -137,24 +137,21 @@ Le relazioni principali sono:
 
 ```mermaid
 graph LR
-    V(["👤 Visitatore"])
-    U(["👤 Utente autenticato"])
+    V(["Visitatore"])
+    U(["Utente"])
 
-    V -->|generalizzazione| U
 
-    V --- UC1(["Registrazione utente"])
-    V --- UC2(["Login"])
+    V --- 1(["Registrazione utente"])
+    V --- 2(["Login"])
 
-    U --- UC3(["Avvio partita"])
-    U --- UC6(["Visualizza classifica"])
-    U --- UC7(["Logout"])
+    U --- 3(["Avvio partita"])
+    U --- 4(["Visualizza classifica"])
+    U --- 5(["Logout"])
 
-    UC3 -. "<<include>>" .-> UC_AUTH(["Verifica autenticazione"])
-    UC6 -. "<<include>>" .-> UC_AUTH
+    3 -. "include" .-> 6(["Verifica autenticazione"])
+    4 -. "include" .-> 6
 
-    style V fill:#1a1a2e,color:#00f0ff,stroke:#00f0ff
-    style U fill:#1a1a2e,color:#00f0ff,stroke:#00f0ff
-    style UC_AUTH fill:#2a0a0a,color:#ff2d78,stroke:#ff2d78
+
 ```
 
 ---

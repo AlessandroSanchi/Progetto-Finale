@@ -1,28 +1,15 @@
 ```mermaid
-flowchart LR
-    subgraph Actors
-        Ospite[Ospite]
-        Utente[Utente]
-    end
-
-    subgraph UseCases
-        A((Autenticazione))
-        B((Avviare il gioco))
-
-        C((Inviare punteggio))
-        D((Visualizzare classifica))
-    end
-
-    Ospite --> A
-
-    Utente --> A
-    Utente --> B
-    Utente --> C
-    Utente --> D
+graph LR
+    V(["Visitatore"])
+    U(["Utente"])
 
 
-    D -->|include| A
-    C -->|include| A
-    C -->|include| B
-    A -->|extend| B
-```
+    V --- 1(["Registrazione utente"])
+    V --- 2(["Login"])
+
+    U --- 3(["Avvio partita"])
+    U --- 4(["Visualizza classifica"])
+    U --- 5(["Logout"])
+
+    3 -. "include" .-> 6(["Verifica autenticazione"])
+    4 -. "include" .-> 6
