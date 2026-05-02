@@ -21,11 +21,12 @@ def get_db():
 
 def init_db():
     conn = get_db()
-    conn.executescript('''
+    conn.executescript('''         
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL UNIQUE,
-            password_hash TEXT NOT NULL
+            password_hash TEXT NOT NULL,
+            coins INTEGER NOT NULL DEFAULT 0
         );
         CREATE TABLE IF NOT EXISTS scores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
